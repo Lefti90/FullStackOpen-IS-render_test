@@ -23,10 +23,12 @@ app.post('/api/persons', (request, response) => {
 // GET
 app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
+  console.log('GET started')
 
   Person.findById(id)
     .then((person) => {
       if (person) {
+        console.log('Persons:', persons)
         response.json(person)
       } else {
         response.status(404).end()
