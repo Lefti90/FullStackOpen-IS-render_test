@@ -53,6 +53,10 @@ app.get('/api/persons', (req, res) => {
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
 
+  if (!ObjectId.isValid(id)) {
+    return response.status(400).json({ error: 'Invalid ID' })
+  }
+
   Person.findByIdAndRemove(id)
     .then((deletedPerson) => {
       if (deletedPerson) {
@@ -65,12 +69,4 @@ app.delete('/api/persons/:id', (request, response) => {
       console.error('Error deleting the person:', error)
       response.status(500).json({ error: 'An error occurred while deleting the person' })
     })
-})
-
-// SERVER
-const port = process.env.PORT || 3001
-connectToDatabase().then(() => {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
-  })
 })
