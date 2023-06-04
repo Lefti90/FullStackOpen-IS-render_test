@@ -1,101 +1,76 @@
 const express = require('express')
-const mongoose = require('mongoose')
-const cors = require('cors')
-
 const app = express()
+const cors = require('cors')
+const Person = require('./models/person')
+const { connectToDatabase, addPerson } = require('./mongo')
+
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
-const url = process.env.MONGODB_URI
-
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Connected to MongoDB')
-  })
-  .catch((error) => {
-    console.log('Error connecting to MongoDB:', error)
-  })
-
-const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-})
-
-const Person = mongoose.model('Person', personSchema)
-
-//POST
+// POST
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  if (!body.name) {
-    console.log(body)
-    return response.status(400).json({
-      error: 'content missing',
-    })
+  if (!body.name || !body.number) {
+    return response.status(400).json({ error: 'Name or number missing' })
   }
 
-  const person = new Person({
-    name: body.name,
-    number: body.number,
-  })
-
-  person.save()
-    .then(result => {
-      console.log(`Added ${body.name} to the phonebook`)
-      response.json(result)
-    })
-    .catch(error => {
-      console.log('Error saving the person:', error)
-      response.status(500).json({ error: 'An error occurred while saving the person' })
-    })
+  addPerson(body.name, body.number)
+  response.json(body)
 })
 
-//GET
+// GET
 app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
 
   Person.findById(id)
-    .then(person => {
+    .then((person) => {
       if (person) {
         response.json(person)
       } else {
         response.status(404).end()
       }
     })
-    .catch(error => {
-      console.log('Error retrieving the person:', error)
-      response.status(500).json({ error: 'An error occurred while retrieving the person' })
+    .catch((error) => {
+      console.error('Error finding person:', error)
+      response.status(500).json({ error: 'An error occurred while finding the person' })
     })
 })
 
 app.get('/api/persons', (req, res) => {
   Person.find({})
-    .then(persons => {
+    .then((persons) => {
       res.json(persons)
     })
-    .catch(error => {
-      console.log('Error retrieving persons:', error)
-      res.status(500).json({ error: 'An error occurred while retrieving persons' })
+    .catch((error) => {
+      console.error('Error fetching persons:', error)
+      res.status(500).json({ error: 'An error occurred while fetching persons' })
     })
 })
 
-//DELETE
+// DELETE
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
 
   Person.findByIdAndRemove(id)
-    .then(() => {
-      response.status(204).end()
+    .then((deletedPerson) => {
+      if (deletedPerson) {
+        response.status(204).end()
+      } else {
+        response.status(404).json({ error: 'Person not found' })
+      }
     })
-    .catch(error => {
-      console.log('Error deleting the person:', error)
+    .catch((error) => {
+      console.error('Error deleting the person:', error)
       response.status(500).json({ error: 'An error occurred while deleting the person' })
     })
 })
 
-//SERVER
+// SERVER
 const port = process.env.PORT || 3001
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`)
+connectToDatabase().then(() => {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`)
+  })
 })
