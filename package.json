@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Lefti90/FullStackOpen-IS.git#master"
+    "url": "git+https://github.com/Lefti90/render_test.git#master"
   },
   "author": "Ilkka Säkkinen",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Lefti90/FullStackOpen-IS/issues"
+    "url": "https://github.com/Lefti90/render_test/issues"
   },
-  "homepage": "https://github.com/Lefti90/FullStackOpen-IS/tree/master#readme",
+  "homepage": "https://github.com/Lefti90/render_test/tree/master#readme",
   "description": "",
   "devDependencies": {
     "nodemon": "^2.0.22"
