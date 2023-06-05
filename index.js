@@ -10,7 +10,7 @@ app.use(express.json())
 app.use(express.static('build'))
 
 // POST
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (!body.name || !body.number) {
@@ -18,27 +18,27 @@ app.post('/api/persons', (request, response) => {
   }
 
   addPerson(body.name, body.number)
-  response.json(body)
+    .then((savedPerson) => {
+      response.json(savedPerson)
+    })
+    .catch((error) => next(error))
 })
 
 // GET
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   const id = Number(request.params.id)
   console.log('GET started')
 
   Person.findById(id)
     .then((person) => {
       if (person) {
-        console.log('Persons:', persons)
+        console.log('Persons:', person)
         response.json(person)
       } else {
         response.status(404).end()
       }
     })
-    .catch((error) => {
-      console.error('Error finding person:', error)
-      response.status(500).json({ error: 'An error occurred while finding the person' })
-    })
+    .catch((error) => next(error))
 })
 
 app.get('/api/persons', (req, res) => {
@@ -46,14 +46,11 @@ app.get('/api/persons', (req, res) => {
     .then((persons) => {
       res.json(persons)
     })
-    .catch((error) => {
-      console.error('Error fetching persons:', error)
-      res.status(500).json({ error: 'An error occurred while fetching persons' })
-    })
+    .catch((error) => next(error))
 })
 
 // DELETE
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
 
   if (!ObjectId.isValid(id)) {
@@ -68,10 +65,7 @@ app.delete('/api/persons/:id', (request, response) => {
         response.status(404).json({ error: 'Person not found' })
       }
     })
-    .catch((error) => {
-      console.error('Error deleting the person:', error)
-      response.status(500).json({ error: 'An error occurred while deleting the person' })
-    })
+    .catch((error) => next(error))
 })
 
 // SERVER
