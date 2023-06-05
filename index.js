@@ -9,6 +9,19 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
+//ERROR HANDLER
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+
+  next(error)
+}
+
 // POST
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
@@ -22,7 +35,7 @@ app.post('/api/persons', (request, response, next) => {
       response.json(savedPerson)
     })
     .catch((error) => next(error))
-})
+}, errorHandler)
 
 // GET
 app.get('/api/persons/:id', (request, response, next) => {
