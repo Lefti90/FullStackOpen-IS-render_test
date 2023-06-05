@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const { ObjectId } = require('mongoose').Types; // Import ObjectId
+const { ObjectId } = require('mongoose').Types // Import ObjectId
 const Person = require('./models/person')
 const { connectToDatabase, addPerson } = require('./mongo')
 
@@ -54,7 +54,7 @@ app.get('/api/persons/:id', (request, response, next) => {
     .catch((error) => next(error))
 })
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then((persons) => {
       res.json(persons)
