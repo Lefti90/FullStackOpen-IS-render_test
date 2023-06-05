@@ -54,7 +54,7 @@ app.get('/api/persons/:id', (request, response, next) => {
     .catch((error) => next(error))
 })
 
-app.get('/api/persons', (req, res, next) => {
+app.get('/api/persons', (req, res) => {
   Person.find({})
     .then((persons) => {
       res.json(persons)
