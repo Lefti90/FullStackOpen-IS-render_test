@@ -2,9 +2,11 @@ const mongoose = require('mongoose')
 const Person = require('./models/person')
 require('dotenv').config()
 
+let db // Store the MongoDB client connection
+
 const connectToDatabase = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    db = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
@@ -23,14 +25,15 @@ const addPerson = async (name, number) => {
     })
     const savedPerson = await person.save()
     console.log(`Added ${savedPerson.name} to the phonebook`)
-    mongoose.connection.close()
+    return savedPerson
   } catch (error) {
     console.error('Error adding a person:', error)
-    mongoose.connection.close()
+    throw error
   }
 }
 
 module.exports = {
   connectToDatabase,
   addPerson,
+  db, // Export the MongoDB client connection
 }

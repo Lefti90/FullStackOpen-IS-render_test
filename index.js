@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const { ObjectId } = require('mongoose').Types; // Import ObjectId
 const Person = require('./models/person')
 const { connectToDatabase, addPerson } = require('./mongo')
 
@@ -72,3 +73,17 @@ app.delete('/api/persons/:id', (request, response) => {
       response.status(500).json({ error: 'An error occurred while deleting the person' })
     })
 })
+
+// SERVER
+const port = process.env.PORT || 3001
+
+connectToDatabase()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`)
+    })
+  })
+  .catch((error) => {
+    console.error('Error connecting to database:', error)
+    process.exit(1)
+  })
